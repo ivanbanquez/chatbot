@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot de la Biblioteca</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="chat-container">
+        <h2>Chatbot de la Biblioteca</h2>
+        <div id="chat-box">
+            <!-- Aquí aparecerán los mensajes -->
+        </div>
+        <input type="text" id="user-input" placeholder="Hazme una pregunta...">
+        <button id="send-button">Enviar</button>
+    </div>
+
+    <script>
+        const sendButton = document.getElementById("send-button");
+        const userInput = document.getElementById("user-input");
+        const chatBox = document.getElementById("chat-box");
+
+        sendButton.onclick = async function () {
+            const message = userInput.value;
+            if (message.trim() === "") return;
+            
+            // Mostrar el mensaje del usuario en el chat
+            chatBox.innerHTML += `<div class="user-message">${message}</div>`;
+            userInput.value = "";
+
+            // Enviar el mensaje al backend para obtener la respuesta del chatbot
+            const response = await fetch("/ask", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: `message=${message}`
+            });
+
+            const data = await response.json();
+            const chatbotMessage = data.response;
+
+            // Mostrar la respuesta del chatbot en el chat
+            chatBox.innerHTML += `<div class="chatbot-message">${chatbotMessage}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;  // Desplazarse hacia abajo automáticamente
+        };
+    </script>
+</body>
+</html>
